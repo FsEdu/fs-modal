@@ -1,6 +1,6 @@
 import modal
 
-APP_NAME = "FS-inference"
+APP_NAME = "inference-service"
 WORKSPACE_DIR = "/workspace"
 
 app = modal.App.lookup(APP_NAME, create_if_missing=True)
