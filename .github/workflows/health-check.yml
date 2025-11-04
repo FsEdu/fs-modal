@@ -1,54 +1,70 @@
-name: 🩺 监控隧道健康 (Health Check)
+name: 🩺 监控所有项目 (Monitor All Projects)
 
 on:
   schedule:
-    # 每 15 分钟检查一次隧道
-    - cron: '*/15 * * * *'
-  # 也允许你手动在 Actions 页面点击 "Run workflow" 来测试
+    # 每 30 分钟检查一次，每月 1440 分钟
+    - cron: '*/30 * * * *'
   workflow_dispatch:
 
+env:
+  GITHUB_TOKEN: ${{ secrets.ACTION_TRIGGER_TOKEN }}
+  REPO_PROJECT_1: 'YourUsername/project-1-repo-name' # 仓库1
+  URL_PROJECT_1: 'https://tunnel-url-1.com'
+  DEPLOY_FILE_1: 'main.yml'
+  
+  REPO_PROJECT_2: 'YourUsername/project-2-repo-name' # 仓库2
+  URL_PROJECT_2: 'https://tunnel-url-2.com'
+  DEPLOY_FILE_2: 'main.yml'
+  
+  REPO_PROJECT_3: 'YourUsername/project-3-repo-name' # 仓库3
+  URL_PROJECT_3: 'https://tunnel-url-3.com'
+  DEPLOY_FILE_3: 'main.yml'
+
 jobs:
-  check-health:
+  check-all-projects:
     runs-on: ubuntu-latest
     
     steps:
-      - name: 检查隧道是否通 (Check Tunnel URL)
-        id: check_status # <--- 步骤 ID
+      - name: 检查项目 1 (Check Project 1)
+        id: check_1
         run: |
-          # 我们不再使用 --fail
-          # -s: 静音模式
-          # -o /dev/null: 丢弃页面内容
-          # -w "%{http_code}": 只输出 HTTP 状态码
-          # --max-time 10: 10 秒超时
-          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 https://modal.kfc.pp.ua)
-          
-          echo "HTTP Status Code: $HTTP_STATUS"
-          
-          # 将状态码保存为 GitHub Step 的输出
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 $URL_PROJECT_1)
+          echo "Project 1 Status: $HTTP_STATUS"
           echo "http_status=$HTTP_STATUS" >> $GITHUB_OUTPUT
 
-      - name: 🔴 隧道不通! 触发重部署 (Tunnel is down! Trigger redeploy)
-        # 关键逻辑：当状态码不是 2xx 并且也不是 400 时
-        if: |
-          !startsWith(steps.check_status.outputs.http_status, '2') &&
-          steps.check_status.outputs.http_status != '400'
-        env:
-          GITHUB_TOKEN: ${{ secrets.ACTION_TRIGGER_TOKEN }}
-          REPO_NAME: ${{ github.repository }} 
-          DEPLOY_WORKFLOW_FILE: 'main.yml' # 保持 'main.yml'
+      - name: 检查项目 2 (Check Project 2)
+        id: check_2
         run: |
-          echo "隧道访问失败 (Status: ${{ steps.check_status.outputs.http_status }})。正在触发 'Deploy to Modal' 工作流..."
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 $URL_PROJECT_2)
+          echo "Project 2 Status: $HTTP_STATUS"
+          echo "http_status=$HTTP_STATUS" >> $GITHUB_OUTPUT
           
-          curl --fail -X POST \
-            -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            "https://api.github.com/repos/$REPO_NAME/actions/workflows/$DEPLOY_WORKFLOW_FILE/dispatches" \
-            -d '{"ref":"${{ github.ref_name }}"}'
-
-      - name: ✅ 隧道正常 (Tunnel is healthy)
-        # 关键逻辑：当状态码是 2xx 或者是 400 时
-        if: |
-          startsWith(steps.check_status.outputs.http_status, '2') ||
-          steps.check_status.outputs.http_status == '400'
+      - name: 检查项目 3 (Check Project 3)
+        id: check_3
         run: |
-          echo "隧道访问正常 (Status: ${{ steps.check_status.outputs.http_status }})，无需操作。"
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 $URL_PROJECT_3)
+          echo "Project 3 Status: $HTTP_STATUS"
+          echo "http_status=$HTTP_STATUS" >> $GITHUB_OUTPUT
+
+      # --- 触发器部分 ---
+
+      - name: 🔴 触发器 (Project 1)
+        if: "!startsWith(steps.check_1.outputs.http_status, '2') && steps.check_1.outputs.http_status != '400'"
+        run: |
+          echo "Project 1 隧道不通 (Status: ${{ steps.check_1.outputs.http_status }}), 正在触发..."
+          curl --fail -X POST -H "Accept: application/vnd.github.v3+json" -H "Authorization: token $GITHUB_TOKEN" \
+          "https://api.github.com/repos/$REPO_PROJECT_1/actions/workflows/$DEPLOY_FILE_1/dispatches" -d '{"ref":"main"}'
+
+      - name: 🔴 触发器 (Project 2)
+        if: "!startsWith(steps.check_2.outputs.http_status, '2') && steps.check_2.outputs.http_status != '400'"
+        run: |
+          echo "Project 2 隧道不通 (Status: ${{ steps.check_2.outputs.http_status }}), 正在触发..."
+          curl --fail -X POST -H "Accept: application/vnd.github.v3+json" -H "Authorization: token $GITHUB_TOKEN" \
+          "https://api.github.com/repos/$REPO_PROJECT_2/actions/workflows/$DEPLOY_FILE_2/dispatches" -d '{"ref":"main"}'
+          
+      - name: 🔴 触发器 (Project 3)
+        if: "!startsWith(steps.check_3.outputs.http_status, '2') && steps.check_3.outputs.http_status != '400'"
+        run: |
+          echo "Project 3 隧道不通 (Status: ${{ steps.check_3.outputs.http_status }}), 正在触发..."
+          curl --fail -X POST -H "Accept: application/vnd.github.v3+json" -H "Authorization: token $GITHUB_TOKEN" \
+          "https://api.github.com/repos/$REPO_PROJECT_3/actions/workflows/$DEPLOY_FILE_3/dispatches" -d '{"ref":"main"}'
