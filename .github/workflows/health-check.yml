@@ -1,0 +1,54 @@
+name: 🩺 监控隧道健康 (Health Check)
+
+on:
+  schedule:
+    # 每 15 分钟检查一次隧道
+    - cron: '*/15 * * * *'
+  # 也允许你手动在 Actions 页面点击 "Run workflow" 来测试
+  workflow_dispatch:
+
+jobs:
+  check-health:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 检查隧道是否通 (Check Tunnel URL)
+        id: check_status # <--- 步骤 ID
+        run: |
+          # 我们不再使用 --fail
+          # -s: 静音模式
+          # -o /dev/null: 丢弃页面内容
+          # -w "%{http_code}": 只输出 HTTP 状态码
+          # --max-time 10: 10 秒超时
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 https://modal.kfc.pp.ua)
+          
+          echo "HTTP Status Code: $HTTP_STATUS"
+          
+          # 将状态码保存为 GitHub Step 的输出
+          echo "http_status=$HTTP_STATUS" >> $GITHUB_OUTPUT
+
+      - name: 🔴 隧道不通! 触发重部署 (Tunnel is down! Trigger redeploy)
+        # 关键逻辑：当状态码不是 2xx 并且也不是 400 时
+        if: |
+          !startsWith(steps.check_status.outputs.http_status, '2') &&
+          steps.check_status.outputs.http_status != '400'
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACTION_TRIGGER_TOKEN }}
+          REPO_NAME: ${{ github.repository }} 
+          DEPLOY_WORKFLOW_FILE: 'main.yml' # 保持 'main.yml'
+        run: |
+          echo "隧道访问失败 (Status: ${{ steps.check_status.outputs.http_status }})。正在触发 'Deploy to Modal' 工作流..."
+          
+          curl --fail -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            "https://api.github.com/repos/$REPO_NAME/actions/workflows/$DEPLOY_WORKFLOW_FILE/dispatches" \
+            -d '{"ref":"${{ github.ref_name }}"}'
+
+      - name: ✅ 隧道正常 (Tunnel is healthy)
+        # 关键逻辑：当状态码是 2xx 或者是 400 时
+        if: |
+          startsWith(steps.check_status.outputs.http_status, '2') ||
+          steps.check_status.outputs.http_status == '400'
+        run: |
+          echo "隧道访问正常 (Status: ${{ steps.check_status.outputs.http_status }})，无需操作。"
