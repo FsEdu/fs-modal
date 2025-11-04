@@ -9,15 +9,15 @@ on:
 env:
   GITHUB_TOKEN: ${{ secrets.ACTION_TRIGGER_TOKEN }}
   REPO_PROJECT_1: 'FsEdu/fs-modal' # 仓库1
-  URL_PROJECT_1: 'https://tunnel-url-1.com'
+  URL_PROJECT_1: 'https://modal.kfc.pp.ua'
   DEPLOY_FILE_1: 'main.yml'
   
   REPO_PROJECT_2: 'FsEdu/modal-SG' # 仓库2
-  URL_PROJECT_2: 'https://tunnel-url-2.com'
+  URL_PROJECT_2: 'https://modal-jp.keyi.pp.ua'
   DEPLOY_FILE_2: 'main.yml'
   
   REPO_PROJECT_3: 'FsEdu/modal-jp-aws' # 仓库3
-  URL_PROJECT_3: 'https://tunnel-url-3.com'
+  URL_PROJECT_3: 'https://jp-aws.modal.pp.ua'
   DEPLOY_FILE_3: 'main.yml'
 
 jobs:
