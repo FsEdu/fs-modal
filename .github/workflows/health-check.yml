@@ -2,7 +2,7 @@ name: 🩺 监控所有项目 (Monitor All Projects)
 
 on:
   schedule:
-    # 每 2 小时检测一次
+    # 每 1 小时检测一次
     - cron: '0 */1 * * *'
   workflow_dispatch:
 
