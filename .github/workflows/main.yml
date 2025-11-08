@@ -5,8 +5,8 @@ on:
   workflow_dispatch:
   
   # 你原来的定时部署（可以保留）
-  schedule:
-    - cron: '50 23 * * *'  
+  # schedule:
+  #   - cron: '50 23 * * *'  
   
 
 jobs:
