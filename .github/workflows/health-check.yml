@@ -32,12 +32,12 @@ jobs:
           echo "Project 1 Status: $HTTP_STATUS"
           echo "http_status=$HTTP_STATUS" >> $GITHUB_OUTPUT
 
-      # - name: 检查项目 2 (Check Project 2)
-      #   id: check_2
-      #   run: |
-      #     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 $URL_PROJECT_2)
-      #     echo "Project 2 Status: $HTTP_STATUS"
-      #     echo "http_status=$HTTP_STATUS" >> $GITHUB_OUTPUT
+      - name: 检查项目 2 (Check Project 2)
+        id: check_2
+        run: |
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 $URL_PROJECT_2)
+          echo "Project 2 Status: $HTTP_STATUS"
+          echo "http_status=$HTTP_STATUS" >> $GITHUB_OUTPUT
           
       - name: 检查项目 3 (Check Project 3)
         id: check_3
@@ -55,12 +55,12 @@ jobs:
           curl --fail -X POST -H "Accept: application/vnd.github.v3+json" -H "Authorization: token $GITHUB_TOKEN" \
           "https://api.github.com/repos/$REPO_PROJECT_1/actions/workflows/$DEPLOY_FILE_1/dispatches" -d '{"ref":"main"}'
 
-      # - name: 🔴 触发器 (Project 2)
-      #   if: "!startsWith(steps.check_2.outputs.http_status, '2') && steps.check_2.outputs.http_status != '400'"
-      #   run: |
-      #     echo "Project 2 隧道不通 (Status: ${{ steps.check_2.outputs.http_status }}), 正在触发..."
-      #     curl --fail -X POST -H "Accept: application/vnd.github.v3+json" -H "Authorization: token $GITHUB_TOKEN" \
-      #     "https://api.github.com/repos/$REPO_PROJECT_2/actions/workflows/$DEPLOY_FILE_2/dispatches" -d '{"ref":"main"}'
+      - name: 🔴 触发器 (Project 2)
+        if: "!startsWith(steps.check_2.outputs.http_status, '2') && steps.check_2.outputs.http_status != '400'"
+        run: |
+          echo "Project 2 隧道不通 (Status: ${{ steps.check_2.outputs.http_status }}), 正在触发..."
+          curl --fail -X POST -H "Accept: application/vnd.github.v3+json" -H "Authorization: token $GITHUB_TOKEN" \
+          "https://api.github.com/repos/$REPO_PROJECT_2/actions/workflows/$DEPLOY_FILE_2/dispatches" -d '{"ref":"main"}'
           
       - name: 🔴 触发器 (Project 3)
         if: "!startsWith(steps.check_3.outputs.http_status, '2') && steps.check_3.outputs.http_status != '400'"
