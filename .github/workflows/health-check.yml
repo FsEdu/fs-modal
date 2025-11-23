@@ -12,9 +12,9 @@ env:
   URL_PROJECT_1: 'https://modal.kfc.pp.ua'
   DEPLOY_FILE_1: 'main.yml'
   
-  # REPO_PROJECT_2: 'FsEdu/modal-SG' # 仓库2
-  # URL_PROJECT_2: 'https://modal-jp.keyi.pp.ua'
-  # DEPLOY_FILE_2: 'main.yml'
+  REPO_PROJECT_2: 'FsEdu/modal-SG' # 仓库2
+  URL_PROJECT_2: 'https://modal-jp.keyi.pp.ua'
+  DEPLOY_FILE_2: 'main.yml'
   
   REPO_PROJECT_3: 'FsEdu/modal-jp-aws' # 仓库3
   URL_PROJECT_3: 'https://jp-aws.modal.pp.ua'
