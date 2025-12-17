@@ -32,12 +32,12 @@ jobs:
           echo "Project 1 Status: $HTTP_STATUS"
           echo "http_status=$HTTP_STATUS" >> $GITHUB_OUTPUT
 
-      - name: 检查项目 2 (Check Project 2)
-        id: check_2
-        run: |
-          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 $URL_PROJECT_2)
-          echo "Project 2 Status: $HTTP_STATUS"
-          echo "http_status=$HTTP_STATUS" >> $GITHUB_OUTPUT
+      # - name: 检查项目 2 (Check Project 2)
+      #   id: check_2
+      #   run: |
+      #     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 $URL_PROJECT_2)
+      #     echo "Project 2 Status: $HTTP_STATUS"
+      #     echo "http_status=$HTTP_STATUS" >> $GITHUB_OUTPUT
           
       - name: 检查项目 3 (Check Project 3)
         id: check_3
