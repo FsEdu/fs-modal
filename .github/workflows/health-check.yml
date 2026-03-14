@@ -1,4 +1,6 @@
-permissions: contents: write
+permissions:
+  contents: write
+
 name: 🩺 监控所有项目 (Monitor All Projects)
 
 on:
@@ -26,6 +28,10 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      # 1. 必须先拉取代码，才能修改仓库里的文件
+      - name: 📥 获取当前仓库代码
+        uses: actions/checkout@v4
+
       - name: 检查项目 1 (Check Project 1)
         id: check_1
         run: |
@@ -69,5 +75,21 @@ jobs:
           echo "Project 3 隧道不通 (Status: ${{ steps.check_3.outputs.http_status }}), 正在触发..."
           curl --fail -X POST -H "Accept: application/vnd.github.v3+json" -H "Authorization: token $GITHUB_TOKEN" \
           "https://api.github.com/repos/$REPO_PROJECT_3/actions/workflows/$DEPLOY_FILE_3/dispatches" -d '{"ref":"main"}'
-Checkout repo
-Update heartbeat time and push
+
+      # --- 修改并保存文件部分 ---
+      - name: 📝 更新并推送 time 文件
+        run: |
+          # 1. 将当前 UTC 时间和测试结果写入 time.txt (你可以按需修改文件名)
+          echo "最后检查时间(UTC): $(date '+%Y-%m-%d %H:%M:%S')" > time.txt
+          echo "项目 1 状态: ${{ steps.check_1.outputs.http_status }}" >> time.txt
+          echo "项目 3 状态: ${{ steps.check_3.outputs.http_status }}" >> time.txt
+          
+          # 2. 配置 Git 机器人账号
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          # 3. 提交并推送
+          git add time.txt
+          # 检查是否有更改，如果有则提交。加上 [skip ci] 防止无限触发其他 workflow
+          git diff --quiet && git diff --staged --quiet || git commit -m "chore: 更新监控时间戳 [skip ci]"
+          git push
