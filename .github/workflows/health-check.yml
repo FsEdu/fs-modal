@@ -1,3 +1,4 @@
+permissions: contents: write
 name: 🩺 监控所有项目 (Monitor All Projects)
 
 on:
@@ -68,3 +69,5 @@ jobs:
           echo "Project 3 隧道不通 (Status: ${{ steps.check_3.outputs.http_status }}), 正在触发..."
           curl --fail -X POST -H "Accept: application/vnd.github.v3+json" -H "Authorization: token $GITHUB_TOKEN" \
           "https://api.github.com/repos/$REPO_PROJECT_3/actions/workflows/$DEPLOY_FILE_3/dispatches" -d '{"ref":"main"}'
+Checkout repo
+Update heartbeat time and push
