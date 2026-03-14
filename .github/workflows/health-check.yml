@@ -1,7 +1,8 @@
+name: 🩺 监控所有项目 (Monitor All Projects)
 permissions:
   contents: write
 
-name: 🩺 监控所有项目 (Monitor All Projects)
+
 
 on:
   schedule:
