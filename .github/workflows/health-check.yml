@@ -16,9 +16,9 @@ env:
   URL_PROJECT_1: 'https://modal.kfc.pp.ua'
   DEPLOY_FILE_1: 'main.yml'
   
-  # REPO_PROJECT_2: 'FsEdu/modal-SG' # 仓库2
-  # URL_PROJECT_2: 'https://modal-jp.keyi.pp.ua'
-  # DEPLOY_FILE_2: 'main.yml'
+  REPO_PROJECT_2: 'FsEdu/modal-SG' # 仓库2
+  URL_PROJECT_2: 'https://modal-jp.keyi.pp.ua'
+  DEPLOY_FILE_2: 'main.yml'
   
   REPO_PROJECT_3: 'FsEdu/modal-jp-aws' # 仓库3
   URL_PROJECT_3: 'https://jp-aws.modal.pp.ua'
@@ -63,12 +63,12 @@ jobs:
           curl --fail -X POST -H "Accept: application/vnd.github.v3+json" -H "Authorization: token $GITHUB_TOKEN" \
           "https://api.github.com/repos/$REPO_PROJECT_1/actions/workflows/$DEPLOY_FILE_1/dispatches" -d '{"ref":"main"}'
 
-      # - name: 🔴 触发器 (Project 2)
-      #   if: "!startsWith(steps.check_2.outputs.http_status, '2') && steps.check_2.outputs.http_status != '400'"
-      #   run: |
-      #     echo "Project 2 隧道不通 (Status: ${{ steps.check_2.outputs.http_status }}), 正在触发..."
-      #     curl --fail -X POST -H "Accept: application/vnd.github.v3+json" -H "Authorization: token $GITHUB_TOKEN" \
-      #     "https://api.github.com/repos/$REPO_PROJECT_2/actions/workflows/$DEPLOY_FILE_2/dispatches" -d '{"ref":"main"}'
+      - name: 🔴 触发器 (Project 2)
+        if: "!startsWith(steps.check_2.outputs.http_status, '2') && steps.check_2.outputs.http_status != '400'"
+        run: |
+          echo "Project 2 隧道不通 (Status: ${{ steps.check_2.outputs.http_status }}), 正在触发..."
+          curl --fail -X POST -H "Accept: application/vnd.github.v3+json" -H "Authorization: token $GITHUB_TOKEN" \
+          "https://api.github.com/repos/$REPO_PROJECT_2/actions/workflows/$DEPLOY_FILE_2/dispatches" -d '{"ref":"main"}'
           
       - name: 🔴 触发器 (Project 3)
         if: "!startsWith(steps.check_3.outputs.http_status, '2') && steps.check_3.outputs.http_status != '400'"
